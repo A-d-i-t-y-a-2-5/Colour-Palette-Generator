@@ -93,9 +93,6 @@ class CPG(object):
             
         return img_vector  
     
-    def counter(self, img_vector):
-        return Counter(map(tuple, img_vector))
-    
     def get_color(self):
         cluster = self.cluster
         image = self.resize()
@@ -105,11 +102,15 @@ class CPG(object):
         labels = model.fit_predict(img_vector)
         label_counts = Counter(labels)
         
+        values = [value for key, value in label_counts.most_common()]
+        orders = [key for key, value in label_counts.most_common()]
+        centers = [model.cluster_centers_[order] for order in orders]
+        
         len_lc = len(label_counts)
         len_cc = len(model.cluster_centers_)
         
         if len_lc == len_cc:
-            hex_colors = [self.rgb2hex(center) for center in model.cluster_centers_]
+            hex_colors = [self.rgb2hex(center) for center in centers]
 
             plt.figure(figsize=(14, 8))
             plt.subplot(221)
@@ -117,11 +118,11 @@ class CPG(object):
             plt.axis('off')
 
             plt.subplot(222)
-            plt.pie(label_counts.values(), labels=hex_colors, colors=hex_colors, startangle=90)
+            plt.pie(values, labels=hex_colors, colors=hex_colors, startangle=90)
             plt.axis('equal')
             plt.show()
         else:
-            hex_colors = [self.rgb2hex(center) for center in model.cluster_centers_]
+            hex_colors = [self.rgb2hex(center) for center in centers]
 
             plt.figure(figsize=(14, 8))
             plt.subplot(221)
@@ -129,7 +130,7 @@ class CPG(object):
             plt.axis('off')
 
             plt.subplot(222)
-            plt.pie(label_counts.values(), labels=hex_colors[:len_lc], colors=hex_colors[:len_lc], startangle=90)
+            plt.pie(values, labels=hex_colors[:len_lc], colors=hex_colors[:len_lc], startangle=90)
             plt.axis('equal')
             plt.show()
         
